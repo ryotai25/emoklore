@@ -60,7 +60,8 @@ function composeProblems() {
   const problems = [];
   if (!findCompose()) {
     problems.push(
-      "docker compose が無い。Dockerを入れるか、FOUNDRY_APP で本体を直接指す（docs/testing.md）",
+      "本体の動かし方が決まっていない。.env に FOUNDRY_APP を書いて直接起動するか、" +
+        "Dockerを入れてコンテナで動かす（docs/testing.md）",
     );
     return problems;
   }

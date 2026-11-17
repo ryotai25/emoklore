@@ -1,8 +1,8 @@
 // 実機検証の設定。各自の配置は環境変数で指す。
 //
 // 本体の動かし方は2通りで、FOUNDRY_APP の有無で決まる。
-//   未指定 … compose.yaml のコンテナを使う（既定）。dataPath は .foundry/data に固定
 //   指定   … その場所のNode配布版を直接起動する。FVTT_DEV_DATA も要る
+//   未指定 … compose.yaml のコンテナを使う。dataPath は .foundry/data に固定
 //
 //   FOUNDRY_APP   … 本体のNode配布版（main.mjs のあるディレクトリ）。直接起動するときだけ
 //   FVTT_DEV_DATA … 直接起動のときの検証専用dataPath。**メイン環境のデータを指さないこと**
