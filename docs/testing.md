@@ -38,7 +38,12 @@ npm run verify:live
 
 **専用の検証環境が要るのはこのコマンドだけ。** `npm run dev`（proxy先のFoundry本体）も `npm run typecheck`（本体ソースの参照）も、普段使いのFoundry（`localhost:30000`）とそのインストール先のままで足りる。検証はデータを作って消すためメイン環境には向けられず（後述）、専用環境を別に用意する。
 
-本体の動かし方は2通りある。**既定はコンテナ**（リポジトリの `compose.yaml`）で、Dockerと本体のzipがあれば `verify:live` が起動から後始末までやる。Dockerを使わない場合は、`FOUNDRY_APP` で手元のNode配布版を指すと直接起動に切り替わる。作り方は[検証環境のセットアップ](#検証環境のセットアップ)にある。
+本体の動かし方は2通りあり、どちらでもよい。
+
+- **直接起動**: `.env` の `FOUNDRY_APP` で手元のNode配布版を指す。Dockerは要らない
+- **コンテナ**: リポジトリの `compose.yaml` を使う。Dockerと本体のzipがあれば、起動から後始末まで `verify:live` がやる
+
+`FOUNDRY_APP` があれば直接起動、無ければコンテナになる。作り方は[検証環境のセットアップ](#検証環境のセットアップ)にある。
 
 **CIでは回さない**（理由は[下記](#ciで回さない理由)）。各自の環境で実行する。
 
@@ -54,7 +59,7 @@ cp .env.example .env   # git管理外。書いた項目だけが効く
 
 | 変数 | 既定 | 何を指すか |
 |---|---|---|
-| `FOUNDRY_APP` | —（コンテナを使う） | 直接起動する本体のNode配布版（`main.mjs` のあるディレクトリ） |
+| `FOUNDRY_APP` | —（未指定ならコンテナ） | 直接起動する本体のNode配布版（`main.mjs` のあるディレクトリ） |
 | `FVTT_DEV_DATA` | コンテナでは `.foundry/data` に固定 | 直接起動のときの検証専用dataPath。`FOUNDRY_APP` を指定したら必須 |
 | `FOUNDRY_LICENSE_KEY` | — | コンテナに渡すライセンスキー。初回起動のときだけ使う |
 | `FOUNDRY_LANGUAGE` | `en.core` | コンテナの本体の表示言語（例: `ja.foundryVTTja`。モジュールは自分で入れる） |
@@ -71,33 +76,9 @@ cp .env.example .env   # git管理外。書いた項目だけが効く
 
 前提が足りないと `verify:live` は着手前にエラーの一覧で止まる。すべて一度きりの作業で、以後はコマンド一発で通る。
 
-#### コンテナで動かす（既定）
+#### 直接起動する
 
-1. **Dockerを入れる**（「docker compose が無い」「Dockerに接続できない」）
-
-   `docker compose`（または `docker-compose`）が通ればよい。Docker Desktop でも colima でも構わない
-
-2. **本体のzipを置く**（「本体のzipが無い」）
-
-   [foundryvtt.com](https://foundryvtt.com/) の購入者ページから **Node.js** 版をダウンロードし、**展開せずに** `~/.cache/foundry/foundryvtt-14.370.zip` の名前で置く（ビルド番号は `compose.yaml` の `FOUNDRY_VERSION` に合わせる）。イメージは本体を含まず、初回起動時にこのzipをコンテナの中で展開する。Safariはzipを自動で展開して元をゴミ箱へ移すので、その場合はゴミ箱から拾う
-
-3. **ライセンスキーを `.env` に書き、EULAに同意する**（「ライセンスが未署名」）
-
-   ```shell
-   cp .env.example .env   # FOUNDRY_LICENSE_KEY を書く
-   npm run build
-   npm run foundry:up     # ワールドを作って起動する
-   ```
-
-   `http://localhost:30014` を開くとEULAの画面が出るので同意する。署名は `.foundry/data/Config/license.json` に残り、以後は出ない
-
-ワールドは `verify:live` と `foundry:up` が無ければ作る（`world.json` を置くだけ。中身は本体が初回起動で作る）。システムは `compose.yaml` が `dist/` をマウントするので、symlinkも要らない。データは `.foundry/data`（git管理外）に溜まり、消せば最初からやり直せる。
-
-`verify:live` は毎回コンテナを作り直す（本体は `system.json` とテンプレートを起動時に読むため）。終わったら、自分で起こしたコンテナだけを止める。`foundry:up` で上げてあったものは残す。
-
-日本語化モジュールなど自分の環境だけのマウントは `compose.override.yaml`（git管理外）に書くと自動で重なる。
-
-#### 直接起動する（`FOUNDRY_APP` を指定）
+`.env` に `FOUNDRY_APP` と `FVTT_DEV_DATA` を書く。
 
 1. **本体のNode配布版を置く**（「FOUNDRY_APP に main.mjs が無い」）
 
@@ -126,6 +107,32 @@ cp .env.example .env   # git管理外。書いた項目だけが効く
    ```
 
    セットアップ画面に入るための管理者アクセスキーは、この初回起動の画面で設定する（未設定でも入れる。検証自体はワールドへの参加しかしないのでどちらでもよい）
+
+#### コンテナで動かす
+
+1. **Dockerを入れる**（「docker compose が無い」「Dockerに接続できない」）
+
+   `docker compose`（または `docker-compose`）が通ればよい。Docker Desktop でも colima でも構わない
+
+2. **本体のzipを置く**（「本体のzipが無い」）
+
+   [foundryvtt.com](https://foundryvtt.com/) の購入者ページから **Node.js** 版をダウンロードし、**展開せずに** `~/.cache/foundry/foundryvtt-14.370.zip` の名前で置く（ビルド番号は `compose.yaml` の `FOUNDRY_VERSION` に合わせる）。イメージは本体を含まず、初回起動時にこのzipをコンテナの中で展開する。Safariはzipを自動で展開して元をゴミ箱へ移すので、その場合はゴミ箱から拾う
+
+3. **ライセンスキーを `.env` に書き、EULAに同意する**（「ライセンスが未署名」）
+
+   ```shell
+   cp .env.example .env   # FOUNDRY_LICENSE_KEY を書く
+   npm run build
+   npm run foundry:up     # ワールドを作って起動する
+   ```
+
+   `http://localhost:30014` を開くとEULAの画面が出るので同意する。署名は `.foundry/data/Config/license.json` に残り、以後は出ない
+
+ワールドは `verify:live` と `foundry:up` が無ければ作る（`world.json` を置くだけ。中身は本体が初回起動で作る）。システムは `compose.yaml` が `dist/` をマウントするので、symlinkも要らない。データは `.foundry/data`（git管理外）に溜まり、消せば最初からやり直せる。
+
+`verify:live` は毎回コンテナを作り直す（本体は `system.json` とテンプレートを起動時に読むため）。終わったら、自分で起こしたコンテナだけを止める。`foundry:up` で上げてあったものは残す。
+
+日本語化モジュールなど自分の環境だけのマウントは `compose.override.yaml`（git管理外）に書くと自動で重なる。
 
 ### 本体を更新したあと
 
