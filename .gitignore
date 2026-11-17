@@ -18,3 +18,8 @@ shots/
 # 各自のローカル環境メモ・ローカル固有スキル（docs/contributing.md「ドキュメントの方針」参照）
 CLAUDE.local.md
 .claude/skills/
+
+# 開発・実機検証用Foundryコンテナのデータ（compose.yaml。docs/testing.md参照）
+.foundry/
+# 各自の環境だけの追加設定（追加のモジュールのマウントなど。docker compose が自動で重ねる）
+compose.override.yaml

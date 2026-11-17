@@ -40,6 +40,9 @@
     "check:wiring": "node tools/check-wiring.mjs",
     "check:css": "node tools/check-css.mjs",
     "link:foundry": "node tools/create-symlinks.mjs",
+    "foundry:up": "node tools/foundry-compose.mjs up",
+    "foundry:down": "node tools/foundry-compose.mjs down",
+    "foundry:types": "node tools/foundry-compose.mjs types",
     "typecheck": "node tools/typecheck.mjs",
     "verify:live": "node tests/live/run.mjs",
     "shots:live": "node tests/live/shots.mjs"
