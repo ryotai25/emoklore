@@ -19,6 +19,7 @@ npm run dev   # 初回build + HMR付きdevサーバ（localhost:30001）
 ```
 
 - FoundryVTT の `Data/systems/emoklore` に `dist/` を配置（またはsymlink）すると、ローカルのFoundryでシステムが読み込まれる。devサーバを使うときも必要（Foundryサーバ本体が `system.json` とテンプレートをディスクから読むため）
+- 本体を持っていない、または開発用に分けたい場合は、リポジトリの `compose.yaml` でコンテナとして立てられる（`npm run foundry:up`。`dist/` は自動でマウントされる。準備は[テスト方針](/testing#検証環境のセットアップ)）。その場合のdevサーバは `FOUNDRY_URL=http://localhost:30014 npm run dev`
 - Foundry本体（既定 `localhost:30000`、環境変数 `FOUNDRY_URL` で変更可）を起動した状態で `localhost:30001` を開くと、ソースから直接配信された画面で開発できる。CSSは保存で即時反映（HMR、リロード不要）、TS・テンプレート・言語ファイルは保存で自動フルリロードされる
 - `localhost:30000` を直接開いた場合は、最後に `npm run build` した内容が表示される（devサーバの変更は乗らない）。バンドルされた実物で確認したいときは `npm run watch`（旧来の `vite build --watch`）を使う
 
@@ -31,6 +32,12 @@ cp example-foundry-config.yaml foundry-config.yaml
 # foundry-config.yaml の installPath を自分のFoundryインストール先に書き換える
 npm run link:foundry   # foundry/client・foundry/common のsymlinkを作成
 npm run typecheck      # tsc --noEmit（本体ソース内の診断は除外される）
+```
+
+本体をコンテナで動かしている場合はインストール先が無いので、zipから直接展開する（`foundry-config.yaml` は要らない）:
+
+```shell
+npm run foundry:types  # ~/.cache/foundry のzipから foundry/client・foundry/common を展開
 ```
 
 ### コンペンディウム（packs）
