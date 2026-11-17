@@ -1,0 +1,25 @@
+# 開発・実機検証用のFoundryVTT本体。使い方と前提: docs/testing.md「検証環境のセットアップ」
+#
+# 本体のzipはイメージに含まれない。Node配布版を FOUNDRY_CACHE（既定 ~/.cache/foundry）に
+# foundryvtt-<FOUNDRY_VERSION>.zip の名前で置く。初回起動時にコンテナの中で展開される。
+#
+# 本体を上げるときは image のタグと FOUNDRY_VERSION を一緒に書き換える
+# （tools/foundry-compose.mjs が FOUNDRY_VERSION を読んで zip を探す）。
+services:
+  foundry:
+    image: felddy/foundryvtt:14.370.0
+    # ライセンスの署名はホスト名に結びつく。変えると再署名（EULAの同意）が要る
+    hostname: emoklore-dev
+    ports:
+      - "${FVTT_PORT:-30014}:30000"
+    environment:
+      FOUNDRY_VERSION: "14.370"
+      CONTAINER_CACHE: /cache
+      FOUNDRY_LICENSE_KEY: ${FOUNDRY_LICENSE_KEY:-}
+      FOUNDRY_WORLD: ${FVTT_WORLD:-emoklore-test}
+      FOUNDRY_LANGUAGE: ${FOUNDRY_LANGUAGE:-en.core}
+      FOUNDRY_TELEMETRY: "false"
+    volumes:
+      - ./.foundry/data:/data
+      - ${FOUNDRY_CACHE:-~/.cache/foundry}:/cache
+      - ./dist:/data/Data/systems/emoklore

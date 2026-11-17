@@ -112,7 +112,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       # ローカルのFoundry本体を更新したら合わせて上げる（世代はsystem.jsonのcompatibilityと対応）
-      FOUNDRY_BUILD: "366"
+      FOUNDRY_BUILD: "370"
       # フォークPRとDependabotのPRにはsecretsが渡らない（Dependabotは専用のsecret storeを見る）。
       # secretsコンテキストは if: から読めないので、有無だけをここに写して判定に使う
       HAS_CREDENTIALS: ${{ secrets.FOUNDRY_USERNAME != '' }}
