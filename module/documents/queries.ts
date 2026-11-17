@@ -50,9 +50,11 @@ type QueryableUser = { query: (name: string, data: unknown) => Promise<unknown> 
  * 名前は他パッケージと衝突しないようシステムIDを使う（本体の予約と分けるための規約）。
  */
 export function registerQueries(): void {
-  const queries = CONFIG.queries as Record<string, (data: unknown) => Promise<unknown>>;
+  // 受け口の型は本体のビルドで変わる（14.370 で dialog が引数2つになった）。
+  // 足すだけなら中身の型は要らないので、キャストせず広い型で受ける
+  const queries: Record<string, unknown> = CONFIG.queries;
 
-  queries[SYSTEM_ID] = async (data) => {
+  queries[SYSTEM_ID] = async (data: unknown): Promise<unknown> => {
     const query = data as Partial<EmokloreQuery> | null;
 
     if (query?.type === "applyDamage") {
