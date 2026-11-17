@@ -1,16 +1,19 @@
 // 実機検証の設定。各自の配置は環境変数で指す。
 //
-//   FOUNDRY_APP   … 本体のNode配布版（main.mjs のあるディレクトリ）
-//   FVTT_DEV_DATA … 検証専用のdataPath。**メイン環境のデータを指さないこと**
+// 本体の動かし方は2通りで、FOUNDRY_APP の有無で決まる。
+//   未指定 … compose.yaml のコンテナを使う（既定）。dataPath は .foundry/data に固定
+//   指定   … その場所のNode配布版を直接起動する。FVTT_DEV_DATA も要る
+//
+//   FOUNDRY_APP   … 本体のNode配布版（main.mjs のあるディレクトリ）。直接起動するときだけ
+//   FVTT_DEV_DATA … 直接起動のときの検証専用dataPath。**メイン環境のデータを指さないこと**
 //   FVTT_PORT     … 既定 30014（300 + 世代番号。30000はメイン環境なので使わない）
 //   FVTT_WORLD    … 既定 emoklore-test
 //   FVTT_USER     … ログインするユーザー名。既定 Gamemaster
 //   SKIP_BUILD    … 1 ならビルドを省く
 //   CHROME_BIN / CDP_PORT … lib/cdp.mjs 参照
 import { readFileSync } from "node:fs";
-import { homedir } from "node:os";
-import { join } from "node:path";
 import { fileURLToPath } from "node:url";
+import { COMPOSE_DATA } from "../../../tools/foundry-compose.mjs";
 
 /**
  * リポジトリルートの `.env` を読む（無ければ何もしない）。雛形は `.env.example`。
@@ -41,8 +44,10 @@ const loadEnvFile = () => {
 
 loadEnvFile();
 
-export const FOUNDRY_APP = process.env.FOUNDRY_APP ?? join(homedir(), "FoundryVTT/v14/code");
-export const DEV_DATA = process.env.FVTT_DEV_DATA ?? join(homedir(), "FoundryVTT/dev-data-v14");
+/** 直接起動する本体の場所。null ならコンテナを使う */
+export const FOUNDRY_APP = process.env.FOUNDRY_APP || null;
+/** 直接起動で FVTT_DEV_DATA が無いときは null（前提確認で弾く）。コンテナでは固定 */
+export const DEV_DATA = FOUNDRY_APP ? process.env.FVTT_DEV_DATA || null : COMPOSE_DATA;
 export const PORT = Number(process.env.FVTT_PORT ?? 30014);
 export const WORLD = process.env.FVTT_WORLD ?? "emoklore-test";
 export const USER = process.env.FVTT_USER ?? "Gamemaster";
